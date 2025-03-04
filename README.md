@@ -16,11 +16,6 @@ Photo Decade Sorter is a simple Python-based tool that helps you organize your J
 - Automatically appends `-1`, `-2`, etc., to filenames if duplicates exist in the destination folder.
 - Displays instructions and date mappings in the GUI for easy reference.
 
-## Screenshots
-
-*(Add screenshots here if you have them, e.g., upload to the repo and link like:)*  
-`![Main Interface](screenshots/main_interface.png)`
-
 ## Prerequisites
 
 - **Windows, macOS, or Linux** (tested on Windows).
