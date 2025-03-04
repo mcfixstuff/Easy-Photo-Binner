@@ -1,4 +1,4 @@
-# Photo Decade Sorter
+# Easy Photo Binner
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
