@@ -30,4 +30,5 @@ Photo Decade Sorter is a simple Python-based tool that helps you organize your J
    ```bash
    git clone https://github.com/mcfixstuff/Easy-Photo-Binner.git
    cd Easy-Photo-Binner
+   main.py
 ### Option 2: There is no Option 2
