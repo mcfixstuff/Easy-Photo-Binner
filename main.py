@@ -5,24 +5,44 @@ import os
 import shutil
 from pathlib import Path
 
+# Adjust these dates to your desired set of dates to bin.
+# Adjusting these will change the folders created for your photo binning pleasure.
+date1 = '1940-1969'
+date2 = "1970's"
+date3 = "1980's"
+date4 = '1990-1994'
+date5 = '1995'
+date6 = '1996'
+date7 = '1997'
+date8 = '1998'
+date9 = '1999'
+date0 = '2000'
+
+# You can use these to adjust the keys mapped to your binning but I recomment to leave them as they are.
+DATE_MAP = {
+    '1': date1,
+    '2': date2,
+    '3': date3,
+    '4': date4,
+    '5': date5,
+    '6': date6,
+    '7': date7,
+    '8': date8,
+    '9': date9,
+    '0': date0
+}
+
+# Canvas dimensions
+CANVAS_WIDTH = 800
+CANVAS_HEIGHT = 600
+
 class PhotoSorter:
     def __init__(self, root):
         self.root = root
         self.root.title("Photo Decade Sorter")
         
-        # Dictionary mapping keys to destination folders
-        self.decade_map = {
-            '1': '1940-1969',
-            '2': "1970's",
-            '3': "1980's",
-            '4': '1990-1994',
-            '5': '1995',
-            '6': '1996',
-            '7': '1997',
-            '8': '1998',
-            '9': '1999',
-            '0': '2000'
-        }
+        # Use the date map
+        self.decade_map = DATE_MAP
         
         # Select project folder
         self.project_dir = Path(filedialog.askdirectory(title="Select Project Folder Containing Unsorted Photos"))
@@ -44,7 +64,7 @@ class PhotoSorter:
         self.last_moved = None  # To store last moved file info for undo
         
         # Set up GUI
-        # Left-side instructions showing number-to-decade mapping
+        # Left-side instructions showing number-to-date mapping
         decade_text = "\n".join([f"{key}: {value}" for key, value in self.decade_map.items()])
         self.decade_instructions = tk.Label(root, 
                                           text=decade_text,
@@ -53,7 +73,7 @@ class PhotoSorter:
         self.decade_instructions.pack(side="left", padx=10, pady=10)  # Left side with padding
         
         # Canvas in the middle
-        self.canvas = tk.Canvas(root, width=800, height=600)
+        self.canvas = tk.Canvas(root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT)
         self.canvas.pack(side="left")  # Canvas next to left instructions
         
         # Right-side instructions for controls
@@ -73,23 +93,26 @@ class PhotoSorter:
         if self.image_files:
             self.show_image()
         else:
-            self.canvas.create_text(400, 300, text="No JPG images found in project folder!", font=("Arial", 20))
+            self.canvas.create_text(CANVAS_WIDTH // 2, CANVAS_HEIGHT // 2, 
+                                  text="No JPG images found in project folder!", font=("Arial", 20))
     
     def show_image(self):
         if not self.image_files or self.current_index < 0 or self.current_index >= len(self.image_files):
-            self.canvas.create_text(400, 300, text="No more images to sort!", font=("Arial", 20))
+            self.canvas.create_text(CANVAS_WIDTH // 2, CANVAS_HEIGHT // 2, 
+                                  text="No more images to sort!", font=("Arial", 20))
             return
             
         image_path = self.image_files[self.current_index]
         img = Image.open(image_path)
         
         # Resize image to fit canvas while maintaining aspect ratio
-        img.thumbnail((800, 600))
+        img.thumbnail((CANVAS_WIDTH, CANVAS_HEIGHT))
         self.photo = ImageTk.PhotoImage(img)
         
         self.canvas.delete("all")
-        self.canvas.create_image(400, 300, image=self.photo)
-        self.canvas.create_text(400, 20, text=f"Image {self.current_index + 1}/{len(self.image_files)}: {image_path.name}",
+        self.canvas.create_image(CANVAS_WIDTH // 2, CANVAS_HEIGHT // 2, image=self.photo)
+        self.canvas.create_text(CANVAS_WIDTH // 2, 20, 
+                              text=f"Image {self.current_index + 1}/{len(self.image_files)}: {image_path.name}",
                               font=("Arial", 12))
     
     def move_image(self, event):
