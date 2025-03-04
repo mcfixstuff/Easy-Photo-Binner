@@ -1,4 +1,6 @@
-![Easy Photo Binner Logo](https://raw.githubusercontent.com/mcfixstuff/Easy-Photo-Binner/main/logo.jpg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/mcfixstuff/Easy-Photo-Binner/main/logo.png" alt="Easy Photo Binner Logo" width="25%"/>
+</p>
 # Easy Photo Binner
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
