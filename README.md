@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/mcfixstuff/Easy-Photo-Binner/main/logo.jpg" alt="Easy Photo Binner Logo" width="25%"/>
+  <img src="https://raw.githubusercontent.com/mcfixstuff/Easy-Photo-Binner/main/logo.jpg" alt="Easy Photo Binner Logo" width="35%"/>
 </p>
 # Easy Photo Binner
 
