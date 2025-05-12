@@ -84,6 +84,46 @@ class PhotoSorter:
                                    font=("Arial", 12))
         self.instructions.pack(side="right", padx=10, pady=10)  # Right side with padding
         
+        # Add settings button
+        self.settings_button = tk.Button(root, text="Settings", command=self.open_settings_window)
+        self.settings_button.pack(side="bottom", pady=10)
+    
+    def open_settings_window(self):
+        settings_win = tk.Toplevel(self.root)
+        settings_win.title("Edit Key-Date Mappings")
+        
+        entries = {}  # To store entry widgets for later
+
+        row = 0
+        for key, value in self.decade_map.items():
+            tk.Label(settings_win, text=f"Key {key}:").grid(row=row, column=0, sticky="e", padx=5, pady=2)
+            entry = tk.Entry(settings_win, width=20)
+            entry.insert(0, value)
+            entry.grid(row=row, column=1, padx=5, pady=2)
+            entries[key] = entry
+            row += 1
+
+        def save_and_close():
+            # Update mapping
+            self.decade_map = {k: e.get().strip() for k, e in entries.items()}
+            self.update_key_bindings()
+            self.update_mapping_label()
+            settings_win.destroy()
+
+        tk.Button(settings_win, text="Save", command=save_and_close).grid(row=row, column=0, columnspan=2, pady=10)
+    def update_key_bindings(self):
+        # Unbind all digit keys first
+        for i in range(10):
+            self.root.unbind(str(i))
+        # Rebind according to new map
+        for key in self.decade_map:
+            self.root.bind(key, self.move_image)
+            
+    def update_mapping_label(self):
+        decade_text = "\n".join([f"{key}: {value}" for key, value in self.decade_map.items()])
+        self.decade_instructions.config(text=decade_text)
+
+
         # Bind keys
         self.root.bind('<Left>', self.previous_or_undo)
         self.root.bind('<Right>', self.next_image)
