@@ -1,6 +1,5 @@
-# v0.4 - with settings loader
 import tkinter as tk
-from tkinter import filedialog, messagebox, simpledialog
+from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 import os
 import shutil
@@ -21,8 +20,6 @@ def load_config():
     if 'Mappings' not in config:
         return None
     mapping = dict(config['Mappings'])
-    if len(mapping) != 10 or not all(k in mapping for k in map(str, range(10))):
-        return None
     return mapping
 
 def save_config(mapping):
@@ -31,38 +28,51 @@ def save_config(mapping):
     with open(CONFIG_FILE, 'w') as f:
         config.write(f)
 
-def open_settings_window(root, on_save_callback):
-    window = tk.Toplevel(root)
-    window.title("Initial Setup: Key-Date Mappings")
+def open_settings_window(parent, on_save_callback, existing_map=None):
+    settings_win = tk.Toplevel(parent)
+    settings_win.title("Configure Key-Date Mapping")
+    settings_win.geometry("300x400")
 
-    instructions = tk.Label(window, text="Enter a label for each key (0–9):")
-    instructions.grid(row=0, column=0, columnspan=2, pady=(10, 0))
+    tk.Label(settings_win, text="Set key bindings for each date range:").pack(pady=5)
 
     entries = {}
-    for i in range(10):
-        key = str(i)
-        tk.Label(window, text=f"Key {key}:").grid(row=i+1, column=0, sticky="e", padx=5, pady=2)
-        entry = tk.Entry(window, width=25)
-        entry.grid(row=i+1, column=1, padx=5, pady=2)
+    for key in map(str, range(10)):  # Allow 0-9, but only map the needed ones
+        frame = tk.Frame(settings_win)
+        frame.pack(fill='x', padx=10, pady=2)
+        tk.Label(frame, text=f"Key {key}:", width=8).pack(side='left')
+        entry = tk.Entry(frame)
+        entry.pack(side='left', expand=True, fill='x')
+
+        # Pre-fill if available
+        if existing_map and key in existing_map:
+            entry.insert(0, existing_map[key])
+
         entries[key] = entry
 
-    def on_save():
-        mapping = {k: e.get().strip() for k, e in entries.items()}
-        if not all(mapping.values()):
-            messagebox.showerror("Missing Value", "All keys must have a label.")
+    def save_and_close():
+        new_map = {k: entries[k].get().strip() for k in entries if entries[k].get().strip()}  # Only save non-empty entries
+        if any(not v for v in new_map.values()):
+            messagebox.showerror("Invalid Input", "All keys must have a non-empty date range.")
             return
-        save_config(mapping)
-        window.destroy()
-        on_save_callback(mapping)
+        if len(set(new_map.values())) < len(new_map):
+            messagebox.showerror("Duplicate Values", "Each key must be mapped to a unique date range.")
+            return
 
-    save_btn = tk.Button(window, text="Save and Start", command=on_save)
-    save_btn.grid(row=11, column=0, columnspan=2, pady=10)
+        config = configparser.ConfigParser()
+        config['Mappings'] = new_map  # Store only the keys that have a mapping
+        with open(CONFIG_FILE, "w") as configfile:
+            config.write(configfile)
+
+        on_save_callback(new_map)
+        settings_win.destroy()
+
+    tk.Button(settings_win, text="Save", command=save_and_close).pack(pady=10)
 
 class PhotoSorter:
     def __init__(self, root, decade_map):
         self.root = root
         self.root.title("Photo Decade Sorter")
-        
+
         # Add a traditional menu bar (File, Settings)
         menubar = tk.Menu(self.root)
 
@@ -121,7 +131,7 @@ class PhotoSorter:
                                      font=("Arial", 12))
         self.instructions.pack(side="right", padx=10, pady=10)  # Right side with padding
 
-        # Bind keys
+        # Bind keys only for the mapped keys
         self.root.bind('<Left>', self.previous_or_undo)
         self.root.bind('<Right>', self.next_image)
         for key in self.decade_map:
@@ -205,6 +215,7 @@ class PhotoSorter:
         if self.image_files and self.current_index < len(self.image_files) - 1:
             self.current_index += 1
             self.show_image()
+
     def open_new_folder(self):
         new_dir = Path(filedialog.askdirectory(title="Select New Project Folder"))
         if new_dir and new_dir.exists():
@@ -224,26 +235,19 @@ class PhotoSorter:
             self.show_image()
 
     def open_settings(self):
-        def apply_and_reload(mapping):
-            self.decade_map = mapping
+        def apply_and_reload(new_map):
+            self.decade_map = new_map
+            # Recreate the PhotoSorter instance to reload with new settings
+            self.root.destroy()
+            self.root = tk.Tk()
+            PhotoSorter(self.root, new_map)
+            self.root.mainloop()
 
-            # Rebuild folders
-            for folder in self.decade_map.values():
-                (self.base_dest_dir / folder).mkdir(exist_ok=True)
-
-            # Rebind keys
-            for key in map(str, range(10)):
-                self.root.bind(key, lambda e, k=key: self.move_image(e))
-
-            # Update label text
-            decade_text = "\n".join([f"{key}: {value}" for key, value in self.decade_map.items()])
-            self.decade_instructions.config(text=decade_text)
-
-        open_settings_window(self.root, apply_and_reload)
+        existing_map = load_config()
+        open_settings_window(self.root, apply_and_reload, existing_map)
 
     def show_about(self):
-        messagebox.showinfo("About", "Photo Decade Sorter\nVersion 0.4\nBuilt with ❤️ using Python + Tkinter.")
-
+        messagebox.showinfo("About", "Photo Decade Sorter v1.0\nSort photos by decade.")
 
 def main():
     root = tk.Tk()
@@ -260,7 +264,6 @@ def main():
         launch_app(mapping)
 
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
