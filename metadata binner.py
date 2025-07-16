@@ -11,7 +11,7 @@ from tkinter import filedialog, messagebox
 from collections import defaultdict
 from datetime import datetime
 
-IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.tiff', '.bmp', '.dng'}
+IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.tiff', '.bmp'}
 VIDEO_EXTENSIONS = {'.mp4', '.mov', '.avi', '.mkv', '.wmv', '.mts', '.m2ts', '.3gp'}
 
 # This function captures the date taken and uses it to bin the photos
